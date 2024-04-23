@@ -7,8 +7,9 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "@azure/functions": "^4.0.0"
+    "@azure/functions": "^4.0.0",
+    "@microsoft/applicationinsights-web": "^3.1.2",
+    "applicationinsights": "^3.0.0"
   },
-  "devDependencies": {},
   "main": "src/functions/*.js"
 }

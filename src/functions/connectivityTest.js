@@ -1,9 +1,17 @@
 const { app, input } = require('@azure/functions');
 const net = require('net');
+const { ApplicationInsights } = require('@microsoft/applicationinsights-web');
+const appInsights = new ApplicationInsights({
+    config: {
+        connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+    },
+});
+appInsights.loadAppInsights();
+const tableName = process.env.TableStorageTableName;
 
 const tableInput = input.table({
-    tableName: 'test',
-    connection: 'AzureWebJobsStorage'
+    tableName: tableName,
+    connection: 'TableStorageConnectionString'
 });
 
 app.http('connectivityTest', {
@@ -19,6 +27,17 @@ app.http('connectivityTest', {
                 const result = await testConnection(test.host, test.port, test.expectedSuccess);
                 context.log(`Test: ${result.host}:${result.port} expected to succeed: ${result.expectedSuccess}; Test ${result.testSuccess ? "succeeded" : "failed"}`);
                 results.push(result)
+                // send the result to app insights
+                appInsights.trackEvent({
+                    name: "Connectivity Test Result",
+                    properties: {
+                        host: result.host,
+                        port: result.port,
+                        expectedSuccess: result.expectedSuccess,
+                        testSuccess: result.testSuccess,
+                        message: result.message
+                    }
+                });
             } catch (error) {
                 context.log(error)
             }
@@ -28,7 +47,7 @@ app.http('connectivityTest', {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: "Tests run successfully", results: results }),
+            body: JSON.stringify({ message: "Tests Report", results: results }),
         }
     }
 });
