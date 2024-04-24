@@ -9,12 +9,13 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: Npm@1
+- task: NodeTool@0
   inputs:
-    command: 'install'
+    versionSpec: '20.x'
+  displayName: 'Install Node.js'
 
-- script: npm run build
-  displayName: 'npm build'
+- script: npm install
+  displayName: 'Install npm dependencies'
 
 - task: ArchiveFiles@2
   inputs:
