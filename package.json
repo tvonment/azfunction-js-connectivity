@@ -8,8 +8,7 @@
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "@microsoft/applicationinsights-web": "^3.1.2",
-    "applicationinsights": "^3.0.0"
+    "applicationinsights": "^3.0.1"
   },
   "main": "src/functions/*.js"
 }

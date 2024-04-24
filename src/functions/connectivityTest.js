@@ -1,14 +1,9 @@
+const appInsights = require('applicationinsights');
 const { app, input } = require('@azure/functions');
 const net = require('net');
-const { ApplicationInsights } = require('@microsoft/applicationinsights-web');
-const appInsights = new ApplicationInsights({
-    config: {
-        connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
-    },
-});
-appInsights.loadAppInsights();
-const tableName = process.env.TableStorageTableName;
 
+appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING).start();
+const tableName = process.env.TableStorageTableName;
 const tableInput = input.table({
     tableName: tableName,
     connection: 'TableStorageConnectionString'
@@ -28,7 +23,7 @@ app.http('connectivityTest', {
                 context.log(`Test: ${result.host}:${result.port} expected to succeed: ${result.expectedSuccess}; Test ${result.testSuccess ? "succeeded" : "failed"}`);
                 results.push(result)
                 // send the result to app insights
-                appInsights.trackEvent({
+                appInsights.defaultClient.trackEvent({
                     name: "Connectivity Test Result",
                     properties: {
                         host: result.host,
@@ -40,8 +35,12 @@ app.http('connectivityTest', {
                 });
             } catch (error) {
                 context.log(error)
+                appInsights.defaultClient.trackException({ exception: error });
             }
         }
+        // Ensure telemetry is sent before the function completes
+        appInsights.defaultClient.flush();
+
         return {
             status: 200,
             headers: {
