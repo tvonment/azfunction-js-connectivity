@@ -1,12 +1,10 @@
 trigger: none
 
-param:
+parameters:
   - name: functionName
     type: string
-    default: 'iwb-mwbh-func-sandbox-connectivity'
-  - name: connectionName
-    type: string
-    default: 'iwb-sub-infrastrukturservices-prod'
+    default: 'iwb-mwbh-func-sandbox-connectivity' 
+
 pool:
   vmImage: ubuntu-latest
 
@@ -33,7 +31,7 @@ steps:
   
 - task: AzureFunctionApp@2
   inputs:
-    connectedServiceNameARM: '$(connectionName)'
+    connectedServiceNameARM: 'iwb-sub-beschaffung-sandbox(15b375fb-20e1-4360-b379-18b556a8fb26)'
     appType: 'functionAppLinux'
     appName: '$(functionName)'
     package: '$(System.DefaultWorkingDirectory)/**/*.zip'
