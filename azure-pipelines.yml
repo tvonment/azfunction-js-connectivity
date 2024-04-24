@@ -1,14 +1,41 @@
 trigger: none
 
+param:
+  - name: functionName
+    type: string
+    default: 'iwb-mwbh-func-sandbox-connectivity'
+  - name: connectionName
+    type: string
+    default: 'iwb-sub-infrastrukturservices-prod'
 pool:
   vmImage: ubuntu-latest
 
 steps:
+- task: Npm@1
+  inputs:
+    command: 'install'
+
+- script: npm run build
+  displayName: 'npm build'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'drop'
+  
 - task: AzureFunctionApp@2
   inputs:
-    connectedServiceNameARM: ''
+    connectedServiceNameARM: '$(connectionName)'
     appType: 'functionAppLinux'
-    appName: 'iwb-mwbh-func-sandbox-connectivity'
+    appName: '$(functionName)'
     package: '$(System.DefaultWorkingDirectory)/**/*.zip'
     runtimeStack: 'NODE|20'
     deploymentMethod: 'auto'
